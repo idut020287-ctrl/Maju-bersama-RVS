@@ -1,0 +1,272 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc, onSnapshot, query, addDoc, updateDoc, increment } from 'firebase/firestore';
+import { 
+  Users, 
+  TrendingUp, 
+  UserPlus, 
+  Search, 
+  DollarSign, 
+  Award,
+  ShieldCheck,
+  Lock,
+  Loader2,
+  CheckCircle2,
+  LogOut
+} from 'lucide-react';
+
+// 
+const firebaseConfig = {
+  apiKey: "AIzaSyBFKPQqVQjNpBG2J0aMU4ekCb70y4NPAwo",
+  authDomain: "maju-bersama-rvs.firebaseapp.com",
+  projectId: "maju-bersama-rvs",
+  storageBucket: "maju-bersama-rvs.firebasestorage.app",
+  messagingSenderId: "394887869712",
+  appId: "1:394887869712:web:900d50fee20c4d8295e195",
+  measurementId: "G-5SVN9KRF7J"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app); JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'maju-bersama-rvs-owner-version';
+
+const PACKAGES = {
+  'Bronze': { price: 1000000, profit: 150000, referralBonus: 100000 },
+  'Silver': { price: 3000000, profit: 500000, referralBonus: 300000 },
+  'Gold': { price: 7000000, profit: 1250000, referralBonus: 700000 },
+  'Platinum': { price: 15000000, profit: 3000000, referralBonus: 1500000 }
+};
+
+// KUNCI ADMIN: Anda bisa mengganti ini untuk mengamankan akses owner
+const ADMIN_SECRET_KEY = "RVS2024_OWNER";
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminKeyInput, setAdminKeyInput] = useState('');
+  const [members, setMembers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMsg, setShowMsg] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    level: 'Bronze',
+    uplineId: ''
+  });
+
+  useEffect(() => {
+    const initAuth = async () => {
+      await signInAnonymously(auth);
+    };
+    initAuth();
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const q = collection(db, 'artifacts', appId, 'public', 'data', 'members');
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const memberData = [];
+      snapshot.forEach((doc) => {
+        memberData.push({ id: doc.id, ...doc.data() });
+      });
+      setMembers(memberData.sort((a, b) => b.createdAt - a.createdAt));
+      setLoading(false);
+    }, (error) => {
+      console.error(error);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    if (adminKeyInput === ADMIN_SECRET_KEY) {
+      setIsAdmin(true);
+    } else {
+      alert("Kunci Owner Salah!");
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!user || isSubmitting) return;
+
+    setIsSubmitting(true);
+    const selectedPkg = PACKAGES[formData.level];
+    
+    try {
+      const memberRef = collection(db, 'artifacts', appId, 'public', 'data', 'members');
+      const newMember = {
+        name: formData.name,
+        email: formData.email,
+        level: formData.level,
+        profit: selectedPkg.profit,
+        totalEarnings: selectedPkg.profit,
+        uplineId: formData.uplineId || null,
+        createdAt: Date.now()
+      };
+      
+      await addDoc(memberRef, newMember);
+
+      if (formData.uplineId) {
+        const uplineDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', formData.uplineId);
+        await updateDoc(uplineDocRef, {
+          totalEarnings: increment(selectedPkg.referralBonus)
+        });
+      }
+
+      setFormData({ name: '', email: '', level: 'Bronze', uplineId: '' });
+      setShowMsg(true);
+      setTimeout(() => setShowMsg(false), 3000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filteredMembers = members.filter(m => 
+    m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    m.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalNetworkProfit = members.reduce((sum, m) => sum + (m.totalEarnings || 0), 0);
+
+  const formatIDR = (val) => new Intl.NumberFormat('id-ID', {
+    style: 'currency', currency: 'IDR', maximumFractionDigits: 0
+  }).format(val);
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" /></div>;
+
+  // Render Login Admin jika belum masuk sebagai Owner
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="bg-indigo-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <ShieldCheck className="text-indigo-600 w-10 h-10" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-800">OWNER LOGIN</h1>
+            <p className="text-slate-500">MAJU BERSAMA RVS</p>
+          </div>
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase">Kunci Akses Owner</label>
+              <div className="relative mt-1">
+                <Lock className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input 
+                  type="password" 
+                  className="w-full pl-10 pr-4 py-3 bg-slate-100 border-none rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Masukkan Kunci..."
+                  value={adminKeyInput}
+                  onChange={(e) => setAdminKeyInput(e.target.value)}
+                />
+              </div>
+            </div>
+            <button className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition-all">
+              MASUK KE SISTEM
+            </button>
+          </form>
+          <p className="text-center text-xs text-slate-400 mt-6 italic">Hak cipta penuh milik pemilik kunci akses.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <nav className="bg-indigo-900 text-white p-4 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-6 h-6" />
+            <span className="text-xl font-black italic">MAJU BERSAMA RVS</span>
+          </div>
+          <button onClick={() => setIsAdmin(false)} className="flex items-center gap-2 text-sm bg-indigo-800 px-4 py-2 rounded-lg hover:bg-red-600 transition-all">
+            <LogOut className="w-4 h-4" /> Keluar
+          </button>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-indigo-600">
+            <p className="text-slate-400 text-xs font-bold uppercase">Total Dana Member</p>
+            <p className="text-3xl font-black text-slate-800">{formatIDR(totalNetworkProfit)}</p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+            <p className="text-slate-400 text-xs font-bold uppercase">Total Anggota</p>
+            <p className="text-3xl font-black text-slate-800">{members.length} Orang</p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-amber-500">
+            <p className="text-slate-400 text-xs font-bold uppercase">Status Sistem</p>
+            <p className="text-3xl font-black text-slate-800 uppercase text-amber-600">Terpantau</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Pendaftaran */}
+          <div className="lg:col-span-4">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <h2 className="font-bold text-lg mb-4 flex items-center gap-2"><UserPlus className="text-indigo-600" /> Registrasi Anggota</h2>
+              <form onSubmit={handleRegister} className="space-y-4">
+                <input required className="w-full p-3 bg-slate-50 rounded-xl border-none" placeholder="Nama Member" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                <input required type="email" className="w-full p-3 bg-slate-50 rounded-xl border-none" placeholder="Email Member" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                <select className="w-full p-3 bg-slate-50 rounded-xl border-none" value={formData.level} onChange={e => setFormData({...formData, level: e.target.value})}>
+                  {Object.keys(PACKAGES).map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+                <select className="w-full p-3 bg-slate-50 rounded-xl border-none" value={formData.uplineId} onChange={e => setFormData({...formData, uplineId: e.target.value})}>
+                  <option value="">Pilih Upline (Bonus Referral)</option>
+                  {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+                <button className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200">DAFTARKAN SEKARANG</button>
+              </form>
+              {showMsg && <div className="mt-4 p-3 bg-emerald-100 text-emerald-700 rounded-lg text-xs text-center font-bold">Data Berhasil Disimpan Permanen!</div>}
+            </div>
+          </div>
+
+          {/* List Member */}
+          <div className="lg:col-span-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h3 className="font-bold">Data Jaringan Aktif</h3>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input className="pl-9 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-sm outline-none" placeholder="Cari..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                </div>
+              </div>
+              <table className="w-full text-left">
+                <thead className="text-xs text-slate-400 uppercase bg-slate-50">
+                  <tr>
+                    <th className="p-4">Nama</th>
+                    <th className="p-4">Paket</th>
+                    <th className="p-4">Profit</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredMembers.map(m => (
+                    <tr key={m.id} className="text-sm">
+                      <td className="p-4 font-bold">{m.name}</td>
+                      <td className="p-4"><span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-bold">{m.level}</span></td>
+                      <td className="p-4 text-emerald-600 font-bold">{formatIDR(m.totalEarnings)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
