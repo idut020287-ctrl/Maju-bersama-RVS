@@ -150,9 +150,18 @@
                     tableHtml += `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="p-5">
-                            <div class="font-bold text-slate-800 text-base">${m.name}</div>
-                            <div class="text-slate-400 text-xs">${m.email}</div>
-                        </td>
+                        <div class="font-bold text-slate-800">${m.name}</div>
+                        <div class="text-[10px] text-slate-400 mb-1">${m.email || m.phone}</div>
+                        <!-- INFO PRODUK -->
+                        <div class="flex gap-1">
+                            <span class="text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-bold">
+                                D: ${m.buyDevice || 0}
+                            </span>
+                            <span class="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-bold">
+                                L: ${m.buyLiquid || 0}
+                            </span>
+                        </div>
+                    </td>
                         <td class="p-5">
                             <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">${m.level}</span>
                         </td>
