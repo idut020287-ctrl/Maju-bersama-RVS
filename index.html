@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAJU BERSAMA RVS</title>
+    <title>Dashboard Owner - MAJU BERSAMA RVS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
-        body { background-color: #f8fafc; font-family: sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        body { background-color: #f1f5f9; font-family: sans-serif; }
+        .card-grad { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
     </style>
 </head>
 <body>
@@ -22,63 +22,82 @@
                     <i data-lucide="shield-check" class="text-indigo-600 w-10 h-10"></i>
                 </div>
                 <h1 class="text-2xl font-black text-slate-800">OWNER LOGIN</h1>
-                <p class="text-slate-500 mb-6">MAJU BERSAMA RVS</p>
-                <input type="password" id="admin-key" class="w-full p-3 bg-slate-100 border-none rounded-xl mb-4 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Kunci Akses Owner">
-                <button onclick="checkAdmin()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition-all">MASUK KE SISTEM</button>
+                <p class="text-slate-500 mb-6 uppercase text-xs tracking-widest font-bold">Maju Bersama RVS</p>
+                <input type="password" id="admin-key" class="w-full p-4 bg-slate-100 border-none rounded-2xl mb-4 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Kunci Akses Owner">
+                <button onclick="checkAdmin()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">MASUK KE SISTEM</button>
             </div>
         </div>
 
         <div id="main-dashboard" class="hidden">
-            <nav class="bg-indigo-900 text-white p-4 sticky top-0 z-50">
+            <nav class="bg-indigo-900 text-white p-4 sticky top-0 z-50 shadow-lg">
                 <div class="max-w-7xl mx-auto flex justify-between items-center">
-                    <span class="text-xl font-black italic">MAJU BERSAMA RVS</span>
-                    <button onclick="location.reload()" class="text-sm bg-red-500 px-3 py-1 rounded-lg">Keluar</button>
+                    <span class="text-xl font-black italic tracking-tighter">MAJU BERSAMA RVS</span>
+                    <button onclick="location.reload()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl text-xs font-bold transition-colors">KELUAR</button>
                 </div>
             </nav>
 
-            <main class="max-w-7xl mx-auto px-4 py-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-indigo-600">
-                        <p class="text-slate-400 text-xs font-bold uppercase">Total Dana Member</p>
-                        <p id="stat-profit" class="text-2xl font-black text-slate-800">Rp 0</p>
+            <main class="max-w-7xl mx-auto px-4 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="card-grad p-6 rounded-3xl shadow-xl text-white">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Total Dana Member</p>
+                                <h2 id="stat-profit" class="text-3xl font-black italic">Rp 0</h2>
+                            </div>
+                            <i data-lucide="wallet" class="text-indigo-300 opacity-50"></i>
+                        </div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-emerald-500">
-                        <p class="text-slate-400 text-xs font-bold uppercase">Total Anggota</p>
-                        <p id="stat-members" class="text-2xl font-black text-slate-800">0 Orang</p>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Anggota</p>
+                                <h2 id="stat-members" class="text-3xl font-black text-slate-800">0 Orang</h2>
+                            </div>
+                            <i data-lucide="users" class="text-indigo-600 opacity-50"></i>
+                        </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="font-bold mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="text-indigo-600"></i> Registrasi</h2>
+                    <div class="lg:col-span-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 h-fit">
+                        <h3 class="font-black text-slate-800 mb-6 flex items-center gap-2">
+                            <i data-lucide="user-plus" class="text-indigo-600 w-5 h-5"></i> INPUT MEMBER BARU
+                        </h3>
                         <div class="space-y-4">
-                            <input id="reg-name" class="w-full p-3 bg-slate-50 rounded-xl outline-none" placeholder="Nama Member">
-                            <input id="reg-email" class="w-full p-3 bg-slate-50 rounded-xl outline-none" placeholder="Email Member">
-                            <select id="reg-level" class="w-full p-3 bg-slate-50 rounded-xl outline-none">
+                            <input id="reg-name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 border-none" placeholder="Nama Lengkap">
+                            <input id="reg-email" class="w-full p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 border-none" placeholder="Alamat Email">
+                            <select id="reg-level" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border-none">
                                 <option value="Bronze">Bronze (1 Juta)</option>
                                 <option value="Silver">Silver (3 Juta)</option>
                                 <option value="Gold">Gold (7 Juta)</option>
                                 <option value="Platinum">Platinum (15 Juta)</option>
                             </select>
-                            <select id="reg-upline" class="w-full p-3 bg-slate-50 rounded-xl outline-none">
+                            <select id="reg-upline" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border-none">
                                 <option value="">Tanpa Upline (Pusat)</option>
                             </select>
-                            <button onclick="registerMember()" id="btn-reg" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">DAFTARKAN</button>
+                            <button onclick="registerMember()" id="btn-reg" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all">DAFTARKAN SEKARANG</button>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50">
-                                <tr>
-                                    <th class="p-4">Nama</th>
-                                    <th class="p-4">Paket</th>
-                                    <th class="p-4">Profit</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body" class="divide-y">
-                                </tbody>
-                        </table>
+                    <div class="lg:col-span-8 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                            <h3 class="font-black text-slate-800 tracking-tight">DATA JARINGAN AKTIF</h3>
+                            <i data-lucide="database" class="text-slate-400 w-5 h-5"></i>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold tracking-widest">
+                                    <tr>
+                                        <th class="p-5">Anggota</th>
+                                        <th class="p-5">Paket</th>
+                                        <th class="p-5">Total Profit</th>
+                                        <th class="p-5 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body" class="divide-y divide-slate-100">
+                                    </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -86,15 +105,15 @@
     </div>
 
     <script>
-        // MASUKKAN CONFIG FIREBASE ANDA DI SINI
-        const firebaseConfig = {
-            apiKey: "PASTE_DI_SINI",
-            authDomain: "PASTE_DI_SINI",
-            projectId: "PASTE_DI_SINI",
-            storageBucket: "PASTE_DI_SINI",
-            messagingSenderId: "PASTE_DI_SINI",
-            appId: "PASTE_DI_SINI"
-        };
+      const firebaseConfig = {
+  apiKey: "AIzaSyBFKPQqVQjNpBG2J0aMU4ekCb70y4NPAwo",
+  authDomain: "maju-bersama-rvs.firebaseapp.com",
+  projectId: "maju-bersama-rvs",
+  storageBucket: "maju-bersama-rvs.firebasestorage.app",
+  messagingSenderId: "394887869712",
+  appId: "1:394887869712:web:900d50fee20c4d8295e195",
+  measurementId: "G-5SVN9KRF7J"
+};
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -113,13 +132,12 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-dashboard').classList.remove('hidden');
                 loadData();
-            } else { alert("Kunci Salah!"); }
+            } else { alert("Kunci Akses Salah!"); }
         }
 
         async function loadData() {
-            auth.signInAnonymously();
+            await auth.signInAnonymously();
             db.collection("members").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-                let members = [];
                 let totalProfit = 0;
                 let tableHtml = "";
                 let uplineHtml = '<option value="">Tanpa Upline (Pusat)</option>';
@@ -127,21 +145,31 @@
                 snapshot.forEach(doc => {
                     const m = doc.data();
                     m.id = doc.id;
-                    members.push(m);
                     totalProfit += (m.totalEarnings || 0);
                     
-                    tableHtml += `<tr>
-                        <td class="p-4 font-bold">${m.name}<br><span class="text-xs text-slate-400 font-normal">${m.email}</span></td>
-                        <td class="p-4 uppercase text-xs font-black text-indigo-600">${m.level}</td>
-                        <td class="p-4 font-bold text-emerald-600">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0}).format(m.totalEarnings)}</td>
+                    tableHtml += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-5">
+                            <div class="font-bold text-slate-800 text-base">${m.name}</div>
+                            <div class="text-slate-400 text-xs">${m.email}</div>
+                        </td>
+                        <td class="p-5">
+                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">${m.level}</span>
+                        </td>
+                        <td class="p-5 font-black text-emerald-600 text-base">
+                            ${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0}).format(m.totalEarnings)}
+                        </td>
+                        <td class="p-5 text-right">
+                            <button onclick="deleteMember('${m.id}')" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
                     </tr>`;
                     
                     uplineHtml += `<option value="${m.id}">${m.name}</option>`;
                 });
 
-                document.getElementById('table-body').innerHTML = tableHtml;
+                document.getElementById('table-body').innerHTML = tableHtml || '<tr><td colspan="4" class="p-10 text-center text-slate-400">Belum ada data member...</td></tr>';
                 document.getElementById('reg-upline').innerHTML = uplineHtml;
-                document.getElementById('stat-members').innerText = members.length + " Orang";
+                document.getElementById('stat-members').innerText = snapshot.size + " Orang";
                 document.getElementById('stat-profit').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0}).format(totalProfit);
                 lucide.createIcons();
             });
@@ -153,7 +181,7 @@
             const level = document.getElementById('reg-level').value;
             const uplineId = document.getElementById('reg-upline').value;
 
-            if(!name || !email) return alert("Isi nama dan email!");
+            if(!name || !email) return alert("Lengkapi data!");
 
             const pkg = PACKAGES[level];
             const newMember = {
@@ -171,12 +199,18 @@
                 });
             }
 
-            alert("Berhasil!");
+            alert("Pendaftaran Manual Berhasil!");
             document.getElementById('reg-name').value = "";
             document.getElementById('reg-email').value = "";
+        }
+
+        async function deleteMember(id) {
+            if(confirm("Hapus member ini dari database?")) {
+                await db.collection("members").doc(id).delete();
+            }
         }
 
         lucide.createIcons();
     </script>
 </body>
-  </html>
+                    </html>
