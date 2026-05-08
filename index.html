@@ -119,13 +119,6 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        const PACKAGES = {
-            'Bronze': { profit: 150000, bonus: 100000 },
-            'Silver': { profit: 500000, bonus: 300000 },
-            'Gold': { profit: 1250000, bonus: 700000 },
-            'Platinum': { profit: 3000000, bonus: 1500000 }
-        };
-
         function checkAdmin() {
             const key = document.getElementById('admin-key').value;
             if(key === "RVS2024_OWNER") {
@@ -162,9 +155,11 @@
                             </span>
                         </div>
                     </td>
-                        <td class="p-5">
-                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">${m.level}</span>
-                        </td>
+                        <td class="p-5 text-center">
+    <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
+        Rp ${(m.totalBelanja || 0).toLocaleString()}
+    </span>
+</td>
                         <td class="p-5 font-black text-emerald-600 text-base">
                             ${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0}).format(m.totalEarnings)}
                         </td>
